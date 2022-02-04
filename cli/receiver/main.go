@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/kuznetsovin/egts-protocol/cli/receiver/config"
-	"github.com/kuznetsovin/egts-protocol/cli/receiver/server"
-	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage"
+	"github.com/amoskaliov/egts-protocol/cli/receiver/config"
+	"github.com/amoskaliov/egts-protocol/cli/receiver/server"
+	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
 	log "github.com/sirupsen/logrus"
 	"plugin"
 )

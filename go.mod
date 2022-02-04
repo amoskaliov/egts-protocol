@@ -1,4 +1,4 @@
-module github.com/kuznetsovin/egts-protocol
+module github.com/amoskaliov/egts-protocol
 
 go 1.12
 

@@ -2,8 +2,8 @@ package server
 
 import (
 	"encoding/binary"
-	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage"
-	"github.com/kuznetsovin/egts-protocol/libs/egts"
+	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
+	"github.com/amoskaliov/egts-protocol/libs/egts"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"

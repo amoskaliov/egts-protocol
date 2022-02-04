@@ -20,7 +20,7 @@ If configure file has't section for a plugin (```[store]```), then packet will b
 ## Install
 
 ```bash
-git clone https://github.com/kuznetsovin/egts-protocol
+git clone https://github.com/amoskaliov/egts-protocol
 cd egts-protocol
 make
 ```
@@ -57,7 +57,7 @@ Example for encoding packet:
 package main 
 
 import (
-    "github.com/kuznetsovin/egts-protocol/libs/egts"
+    "github.com/amoskaliov/egts-protocol/libs/egts"
     "log"
 )
 
@@ -98,7 +98,7 @@ Example for decoding packet:
 package main 
 
 import (
-    "github.com/kuznetsovin/egts-protocol/libs/egts"
+    "github.com/amoskaliov/egts-protocol/libs/egts"
     "log"
 )
 
