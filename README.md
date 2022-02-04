@@ -36,7 +36,6 @@ make
 ## Config format
 
 ```toml
-[srv]
 host = "127.0.0.1"
 port = "6000"
 con_ttl = 10

@@ -24,7 +24,7 @@ func main() {
 
 	cfg, err := config.New(cfgFilePath)
 	if err != nil {
-		log.Fatal("Ошибка парсинга конфига: %v", err)
+		log.Fatalf("Ошибка парсинга конфига: %v", err)
 	}
 
 	log.SetLevel(cfg.GetLogLevel())

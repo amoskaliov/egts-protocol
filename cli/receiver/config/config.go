@@ -16,7 +16,7 @@ type Settings struct {
 	Port     string
 	ConnTTl  int `toml:"conn_ttl"`
 	Store    map[string]string
-	LogLevel string
+	LogLevel string `toml:"log_level"`
 }
 
 func (s *Settings) GetEmptyConnTTL() time.Duration {

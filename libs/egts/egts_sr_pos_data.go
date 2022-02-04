@@ -100,7 +100,7 @@ func (e *SrPosData) Decode(content []byte) error {
 	if e.Direction, err = buf.ReadByte(); err != nil {
 		return fmt.Errorf("Не удалось получить направление движения: %v", err)
 	}
-	e.Direction |= e.DirectionHighestBit << 7
+	e.Direction |= e.DirectionHighestBit << 8
 
 	bytesTmpBuf := make([]byte, 3)
 	if _, err = buf.Read(bytesTmpBuf); err != nil {
