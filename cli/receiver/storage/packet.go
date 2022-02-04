@@ -17,7 +17,7 @@ type NavRecord struct {
 	Vdop                uint16         `json:"vdop"`
 	Nsat                uint8          `json:"nsat"`
 	Ns                  uint16         `json:"ns"`
-	Course              uint8          `json:"course"`
+	Course              uint16         `json:"course"`
 	AnSensors           []AnSensor     `json:"an_sensors"`
 	LiquidSensors       []LiquidSensor `json:"liquid_sensors"`
 }

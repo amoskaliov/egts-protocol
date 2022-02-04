@@ -22,7 +22,7 @@ type SrPosData struct {
 	CS                  string    `json:"CS"`
 	FIX                 string    `json:"FIX"`
 	VLD                 string    `json:"VLD"`
-	DirectionHighestBit uint8     `json:"DIRH"`
+	DirectionHighestBit uint16    `json:"DIRH"`
 	AltitudeSign        uint8     `json:"ALTS"`
 	Speed               uint16    `json:"SPD"`
 	Direction           byte      `json:"DIR"`
@@ -86,7 +86,7 @@ func (e *SrPosData) Decode(content []byte) error {
 		return fmt.Errorf("Не удалось получить скорость: %v", err)
 	}
 	spd := binary.LittleEndian.Uint16(tmpUint16Buf)
-	e.DirectionHighestBit = uint8(spd >> 15 & 0x1)
+	e.DirectionHighestBit = uint16(spd >> 15 & 0x1)
 	e.AltitudeSign = uint8(spd >> 14 & 0x1)
 
 	speedBits := fmt.Sprintf("%016b", spd)
@@ -100,7 +100,7 @@ func (e *SrPosData) Decode(content []byte) error {
 	if e.Direction, err = buf.ReadByte(); err != nil {
 		return fmt.Errorf("Не удалось получить направление движения: %v", err)
 	}
-	e.Direction |= e.DirectionHighestBit << 8
+	// e.Direction |= e.DirectionHighestBit << 8
 
 	bytesTmpBuf := make([]byte, 3)
 	if _, err = buf.Read(bytesTmpBuf); err != nil {
@@ -173,7 +173,7 @@ func (e *SrPosData) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось записать скорость: %v", err)
 	}
 
-	dir := e.Direction &^ (e.DirectionHighestBit << 7)
+	dir := e.Direction &^ uint8(e.DirectionHighestBit<<8)
 	if err = binary.Write(buf, binary.LittleEndian, dir); err != nil {
 		return result, fmt.Errorf("Не удалось записать направление движения: %v", err)
 	}

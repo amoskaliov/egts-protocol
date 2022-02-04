@@ -1,9 +1,10 @@
 package egts
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -24,7 +25,7 @@ var (
 		DirectionHighestBit: 1,
 		AltitudeSign:        0,
 		Speed:               200,
-		Direction:           172,
+		Direction:           44,
 		Odometer:            1,
 		DigitalInputs:       0,
 		Source:              0,

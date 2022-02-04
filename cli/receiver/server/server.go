@@ -2,12 +2,13 @@ package server
 
 import (
 	"encoding/binary"
-	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
-	"github.com/amoskaliov/egts-protocol/libs/egts"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
 	"time"
+
+	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
+	"github.com/amoskaliov/egts-protocol/libs/egts"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -180,7 +181,7 @@ func (s *Server) handleConn(conn net.Conn) {
 						exportPacket.Latitude = subRecData.Latitude
 						exportPacket.Longitude = subRecData.Longitude
 						exportPacket.Speed = subRecData.Speed
-						exportPacket.Course = subRecData.Direction
+						exportPacket.Course = uint16(subRecData.Direction) | subRecData.DirectionHighestBit<<8
 					case *egts.SrExtPosData:
 						log.Debug("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
 						exportPacket.Nsat = subRecData.Satellites

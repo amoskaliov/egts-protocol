@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/amoskaliov/egts-protocol/libs/egts"
 	"net"
 	"os"
 	"time"
+
+	"github.com/amoskaliov/egts-protocol/libs/egts"
 )
 
 /*
@@ -127,7 +128,7 @@ func main() {
 							DirectionHighestBit: 0,
 							AltitudeSign:        0,
 							Speed:               34,
-							Direction:           172,
+							Direction:           44,
 							Odometer:            191,
 							DigitalInputs:       144,
 							Source:              0,

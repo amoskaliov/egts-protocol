@@ -1,9 +1,10 @@
 package egts
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -29,7 +30,7 @@ func TestRecordDataSet_Encode(t *testing.T) {
 				DirectionHighestBit: 1,
 				AltitudeSign:        0,
 				Speed:               200,
-				Direction:           172,
+				Direction:           44,
 				Odometer:            1,
 				DigitalInputs:       0,
 				Source:              0,
@@ -64,7 +65,7 @@ func TestRecordDataSet_Decode(t *testing.T) {
 				DirectionHighestBit: 1,
 				AltitudeSign:        0,
 				Speed:               200,
-				Direction:           172,
+				Direction:           44,
 				Odometer:            1,
 				DigitalInputs:       0,
 				Source:              0,
