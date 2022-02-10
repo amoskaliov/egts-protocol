@@ -8,7 +8,7 @@ package main
 
 [store]
 plugin = "clickhouse.so"
-host = "localhost"
+host = "localhost:8123"
 user = "postgres"
 password = "postgres"
 database = "receiver"
@@ -23,17 +23,14 @@ import (
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
 type ClickhouseConnector struct {
-	connection        clickhouse.Conn
-	ctx               context.Context
-	config            map[string]string
-	batch             driver.Batch
-	current_batch_len int
-	max_batch_len     int
-	query             string
+	connection    clickhouse.Conn
+	config        map[string]string
+	batch         []interface{ ToBytes() ([]byte, error) }
+	max_batch_len int
+	query         string
 }
 
 func (c *ClickhouseConnector) Init(cfg map[string]string) error {
@@ -45,14 +42,13 @@ func (c *ClickhouseConnector) Init(cfg map[string]string) error {
 	}
 	c.config = cfg
 	c.max_batch_len, err = strconv.Atoi(c.config["batch_len"])
-	c.current_batch_len = 0
+	c.batch = nil
 	c.query = fmt.Sprintf("INSERT INTO %s.%s", c.config["database"], c.config["table"])
 
 	if err != nil {
 		return fmt.Errorf("Неверно задан параметр batch_len: %v", err)
 	}
 
-	c.ctx = context.Background()
 	c.connection, err = clickhouse.Open(&clickhouse.Options{
 		Addr: []string{c.config["host"]},
 		Auth: clickhouse.Auth{
@@ -71,45 +67,34 @@ func (c *ClickhouseConnector) Init(cfg map[string]string) error {
 		return fmt.Errorf("Ошибка подключения к Clickhouse: %v", err)
 	}
 
-	err = c.InitBatch()
-
-	return err
-}
-
-func (c *ClickhouseConnector) InitBatch() error {
-	var (
-		err error
-	)
-
-	c.batch, err = c.connection.PrepareBatch(c.ctx, c.query)
-
-	if err != nil {
-		return fmt.Errorf("Ошибка инициализации транзакции: %v", err)
-	}
-
 	return err
 }
 
 func (c *ClickhouseConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+	c.batch = append(c.batch, msg)
 
-	err := c.batch.AppendStruct(&msg)
+	if len(c.batch) == c.max_batch_len {
+		ctx := context.Background()
 
-	if err != nil {
-		return fmt.Errorf("Ошибка добавления пакета в транзакцию: %v", err)
-	}
+		ch_batch, err := c.connection.PrepareBatch(ctx, c.query)
+		if err != nil {
+			return fmt.Errorf("Ошибка подготовки транзакции: %v", err)
+		}
 
-	c.current_batch_len++
+		for _, element := range c.batch {
+			err = ch_batch.AppendStruct(element)
+			if err != nil {
+				return fmt.Errorf("Ошибка добавления элемента в транзакцию: %v", err)
+			}
+		}
 
-	if c.current_batch_len > c.max_batch_len {
-		err = c.batch.Send()
+		err = ch_batch.Send()
 		if err != nil {
 			return fmt.Errorf("Ошибка выполнения транзакции: %v", err)
 		}
-		err = c.InitBatch()
-		if err != nil {
-			return fmt.Errorf("Ошибка выполнения транзакции: %v", err)
-		}
-		c.current_batch_len = 0
+
+		c.batch = nil
+
 	}
 
 	return nil
