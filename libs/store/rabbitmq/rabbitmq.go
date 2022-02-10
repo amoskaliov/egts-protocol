@@ -17,6 +17,8 @@ exchange_type = "topic"
 
 import (
 	"fmt"
+
+	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
 	"github.com/streadway/amqp"
 )
 
@@ -47,7 +49,7 @@ func (c *RabbitMQConnector) Init(cfg map[string]string) error {
 	return err
 }
 
-func (c *RabbitMQConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c *RabbitMQConnector) Save(msg *storage.NavRecord) error {
 	if msg == nil {
 		return fmt.Errorf("Не корректная ссылка на пакет")
 	}

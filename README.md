@@ -126,7 +126,7 @@ type Connector interface {
 	Init(map[string]string) error
 	
 	// save to store method
-	Save(interface{ ToBytes() ([]byte, error) }) error
+	Save(*NavRecord) error
 	
 	// close connection with store
 	Close() error

@@ -20,6 +20,8 @@ sslmode = "disable"
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
 	_ "github.com/lib/pq"
 )
 
@@ -44,7 +46,7 @@ func (c *PostgreSQLConnector) Init(cfg map[string]string) error {
 	return err
 }
 
-func (c *PostgreSQLConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c *PostgreSQLConnector) Save(msg *storage.NavRecord) error {
 	if msg == nil {
 		return fmt.Errorf("Не корректная ссылка на пакет")
 	}

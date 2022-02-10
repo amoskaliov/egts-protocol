@@ -6,7 +6,7 @@ type Connector interface {
 	Init(map[string]string) error
 
 	// сохранение в хранилище
-	Save(interface{ ToBytes() ([]byte, error) }) error
+	Save(*NavRecord) error
 
 	//закрытие соединения с хранилищем
 	Close() error

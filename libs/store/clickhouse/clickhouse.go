@@ -23,12 +23,13 @@ import (
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
 )
 
 type ClickhouseConnector struct {
 	connection    clickhouse.Conn
 	config        map[string]string
-	batch         []interface{ ToBytes() ([]byte, error) }
+	batch         []*storage.NavRecord
 	max_batch_len int
 	query         string
 }
@@ -70,7 +71,7 @@ func (c *ClickhouseConnector) Init(cfg map[string]string) error {
 	return err
 }
 
-func (c *ClickhouseConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c *ClickhouseConnector) Save(msg *storage.NavRecord) error {
 	c.batch = append(c.batch, msg)
 
 	if len(c.batch) == c.max_batch_len {
@@ -82,7 +83,16 @@ func (c *ClickhouseConnector) Save(msg interface{ ToBytes() ([]byte, error) }) e
 		}
 
 		for _, element := range c.batch {
-			err = ch_batch.AppendStruct(element)
+			err = ch_batch.Append(
+				element.Client,
+				element.PacketID,
+				element.NavigationTimestamp,
+				element.ReceivedTimestamp,
+				element.Latitude,
+				element.Longitude,
+				element.Speed,
+				element.Course,
+			)
 			if err != nil {
 				return fmt.Errorf("Ошибка добавления элемента в транзакцию: %v", err)
 			}

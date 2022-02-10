@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -11,7 +12,7 @@ func (c LogConnector) Init(cfg map[string]string) error {
 	return nil
 }
 
-func (c LogConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c LogConnector) Save(msg *NavRecord) error {
 	jsonPkg, err := json.MarshalIndent(msg, "", "    ")
 	if err != nil {
 		return err

@@ -1,10 +1,12 @@
 package server
 
 import (
-	"github.com/stretchr/testify/assert"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestServer(t *testing.T) {
@@ -56,7 +58,7 @@ func (t *TestConnector) Init(c map[string]string) error {
 	return nil
 }
 
-func (t *TestConnector) Save(p interface{ ToBytes() ([]byte, error) }) error {
+func (t *TestConnector) Save(p *storage.NavRecord) error {
 	v, err := p.ToBytes()
 	t.ch <- v
 
