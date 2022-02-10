@@ -7,13 +7,13 @@ package main
 Раздел настроек, которые должны отвечают в конфиге для подключения плагина:
 
 [store]
-plugin = "Clickhouse.so"
+plugin = "clickhouse.so"
 host = "localhost"
 user = "postgres"
 password = "postgres"
 database = "receiver"
 table = "points"
-batch_len = 50000
+batch_len = "50000"
 */
 
 import (
@@ -24,7 +24,6 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
 )
 
 type ClickhouseConnector struct {
@@ -91,7 +90,7 @@ func (c *ClickhouseConnector) InitBatch() error {
 	return err
 }
 
-func (c *ClickhouseConnector) Save(msg *storage.NavRecord) error {
+func (c *ClickhouseConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 
 	err := c.batch.AppendStruct(&msg)
 
