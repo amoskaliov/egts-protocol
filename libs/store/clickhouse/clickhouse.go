@@ -8,7 +8,7 @@ package main
 
 [store]
 plugin = "clickhouse.so"
-host = "localhost:8123"
+host = "localhost:9000"
 user = "postgres"
 password = "postgres"
 database = "receiver"
@@ -24,6 +24,7 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/amoskaliov/egts-protocol/cli/receiver/storage"
+	log "github.com/sirupsen/logrus"
 )
 
 type ClickhouseConnector struct {
@@ -74,11 +75,13 @@ func (c *ClickhouseConnector) Init(cfg map[string]string) error {
 func (c *ClickhouseConnector) Save(msg *storage.NavRecord) error {
 	c.batch = append(c.batch, msg)
 
-	if len(c.batch) == c.max_batch_len {
+	if len(c.batch) >= c.max_batch_len {
+		log.Debugf("Пакет готов к отправке. Строк: %v", len(c.batch))
 		ctx := context.Background()
 
 		ch_batch, err := c.connection.PrepareBatch(ctx, c.query)
 		if err != nil {
+			c.batch = nil
 			return fmt.Errorf("Ошибка подготовки транзакции: %v", err)
 		}
 
@@ -94,12 +97,14 @@ func (c *ClickhouseConnector) Save(msg *storage.NavRecord) error {
 				element.Course,
 			)
 			if err != nil {
+				c.batch = nil
 				return fmt.Errorf("Ошибка добавления элемента в транзакцию: %v", err)
 			}
 		}
 
 		err = ch_batch.Send()
 		if err != nil {
+			c.batch = nil
 			return fmt.Errorf("Ошибка выполнения транзакции: %v", err)
 		}
 
