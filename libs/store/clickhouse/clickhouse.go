@@ -76,7 +76,7 @@ func (c *ClickhouseConnector) Save(msg *storage.NavRecord) error {
 	c.batch = append(c.batch, msg)
 
 	if len(c.batch) >= c.max_batch_len {
-		log.Debugf("Пакет готов к отправке. Строк: %v", len(c.batch))
+		log.Infof("Пакет готов к отправке. Строк: %v", len(c.batch))
 		ctx := context.Background()
 
 		ch_batch, err := c.connection.PrepareBatch(ctx, c.query)

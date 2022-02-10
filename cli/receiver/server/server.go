@@ -153,7 +153,7 @@ func (s *Server) handleConn(conn net.Conn) {
 					},
 				})
 				serviceType = rec.SourceServiceType
-				log.Info("Тип сервиса ", serviceType)
+				log.Debug("Тип сервиса ", serviceType)
 
 				exportPacket.Client = rec.ObjectIdentifier
 
