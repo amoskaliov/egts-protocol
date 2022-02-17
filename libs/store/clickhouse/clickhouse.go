@@ -19,6 +19,7 @@ batch_len = "50000"
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -56,7 +57,7 @@ func (c *ClickhouseConnector) Init(cfg map[string]string) error {
 		Auth: clickhouse.Auth{
 			Database: c.config["database"],
 			Username: c.config["user"],
-			Password: c.config["password"],
+			Password: os.Getenv(c.config["password"]),
 		},
 		//Debug:           true,
 		DialTimeout:     time.Second,
