@@ -17,6 +17,15 @@ Plugin interface will be described below.
 
 If configure file has't section for a plugin (```[store]```), then packet will be print to stdout.
 
+## Fork features
+
+This project is forked from https://github.com/kuznetsovin/egts-protocol
+
+Key differences:
+1. If the `DIRH` field is set to 1, then `course = DIR + 256` (in the original project it's calculated as `course = DIR + 128`).
+2. Also the `course` field now supports values more than 255 (as it can be up to 359).
+3. The only supported external storage is Clickhouse DB.
+
 ## Install
 
 ```bash
@@ -28,7 +37,7 @@ make
 ## Run
 
 ```bash
-./receiver config.toml
+./receiver -c config.toml
 ```
 
 ```config.toml``` - configure file
@@ -40,6 +49,15 @@ host = "127.0.0.1"
 port = "6000"
 con_ttl = 10
 log_level = "DEBUG"
+
+[store]
+plugin = "clickhouse.so"
+host = "clickhouse:9000"
+user = "receiver"
+password = "CH_RCV_PASSWORD"
+database = "db"
+table = "table"
+batch_len = "50000"
 ```
 
 Parameters description:
@@ -49,88 +67,29 @@ Parameters description:
 - *conn_ttl* - if server not received data longer time in the parameter, then the connection is closed. 
 - *log_level* - logging level
 
-## Usage only Golang EGTS library
+Clickhouse settings:
 
-Example for encoding packet:
+- *plugin* - path to `clickhouse.so`
+- *host* - server address and port to Clickhouse native interface.
+- *user* - username for connection.
+- *password* - name of environment variable which contains the password for connection.
+- *database* - database name.
+- *table* - table name.
+- *batch_len* - size of batch to be inserted.
 
-```go
-package main 
+## Database
 
-import (
-    "github.com/amoskaliov/egts-protocol/libs/egts"
-    "log"
+Table example is below. Sensors data is missing.
+
+```sql
+CREATE TABLE IF NOT EXISTS telematics_service.queue (
+    `client` UInt32,
+    `packet_id` UInt32,
+    `navigation_unix_time` Int64,
+    `received_unix_time` Int64,
+    `latitude` Float64,
+    `longitude` Float64,
+    `speed` UInt16,
+    `course` UInt16
 )
-
-func main() {
-    pkg := egts.Package{
-    		ProtocolVersion:  1,
-    		SecurityKeyID:    0,
-    		Prefix:           "00",
-    		Route:            "0",
-    		EncryptionAlg:    "00",
-    		Compression:      "0",
-    		Priority:         "11",
-    		HeaderLength:     11,
-    		HeaderEncoding:   0,
-    		FrameDataLength:  3,
-    		PacketIdentifier: 137,
-    		PacketType:       egts.PtResponsePacket,
-    		HeaderCheckSum:   74,
-    		ServicesFrameData: &egts.PtResponse{
-    			ResponsePacketID: 14357,
-    			ProcessingResult: 0,
-    		},
-    	}
-    
-    rawPkg, err := pkg.Encode()
-	if err != nil {
-		log.Fatal(err)
-	}
-    
-    log.Println("Bytes packet: ", rawPkg)
-}
-
 ```
-
-Example for decoding packet:
-
-```go
-package main 
-
-import (
-    "github.com/amoskaliov/egts-protocol/libs/egts"
-    "log"
-)
-
-func main() {
-    pkg := []byte{0x01, 0x00, 0x03, 0x0B, 0x00, 0x03, 0x00, 0x89, 0x00, 0x00, 0x4A, 0x15, 0x38, 0x00, 0x33, 0xE8}
-    result := egts.Package{}
-
-    state, err := result.Decode(pkg)
-    if err != nil {
- 		log.Fatal(err)
- 	}
-    
-    log.Println("State: ", state)
-    log.Println("Package: ", result)
-}
-```
-
-# Store plugins
-
-That create a new plugin you must implement ```Connector``` interface:
-
-```go
-type Connector interface {
-	// setup store connection
-	Init(map[string]string) error
-	
-	// save to store method
-	Save(*NavRecord) error
-	
-	// close connection with store
-	Close() error
-}
-```
-
-All plugins available in [store folder](/libs/store).

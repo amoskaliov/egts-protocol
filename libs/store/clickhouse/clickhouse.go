@@ -2,17 +2,19 @@ package main
 
 /*
 Плагин для работы с Clickhouse.
-Плагин сохраняет пакет в jsonb поле point у заданной в настройках таблице.
+Плагин сохраняет пакет в столбцы заданной в настройках таблицы.
+
+Плагин пишет в БД порциями по batch_len записей.
 
 Раздел настроек, которые должны отвечают в конфиге для подключения плагина:
 
 [store]
 plugin = "clickhouse.so"
 host = "localhost:9000"
-user = "postgres"
-password = "postgres"
-database = "receiver"
-table = "points"
+user = "user"
+password = "ENV_VAR_NAME"
+database = "telematics_service"
+table = "queue"
 batch_len = "50000"
 */
 
@@ -45,12 +47,13 @@ func (c *ClickhouseConnector) Init(cfg map[string]string) error {
 	}
 	c.config = cfg
 	c.max_batch_len, err = strconv.Atoi(c.config["batch_len"])
-	c.batch = nil
-	c.query = fmt.Sprintf("INSERT INTO %s.%s", c.config["database"], c.config["table"])
 
 	if err != nil {
 		return fmt.Errorf("Неверно задан параметр batch_len: %v", err)
 	}
+
+	c.batch = nil
+	c.query = fmt.Sprintf("INSERT INTO %s.%s", c.config["database"], c.config["table"])
 
 	c.connection, err = clickhouse.Open(&clickhouse.Options{
 		Addr: []string{c.config["host"]},
